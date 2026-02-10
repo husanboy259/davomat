@@ -1,0 +1,15 @@
+{
+  "name": "davomat-bot",
+  "version": "1.0.0",
+  "description": "Commandsiz davomat boti - Supabase ga saqlaydi",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "node --watch index.js"
+  },
+  "dependencies": {
+    "telegraf": "^4.16.3",
+    "@supabase/supabase-js": "^2.45.0",
+    "dotenv": "^16.4.5"
+  }
+}
