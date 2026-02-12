@@ -26,16 +26,16 @@ git push -u origin main
 
 ---
 
-## 3. Yangi Background Worker yaratish
+## 3. Yangi Web Service yaratish (bot + admin panel)
 
-1. Render Dashboard da **New +** → **Background Worker** tanlang.
-2. **Connect a repository** – GitHub dagi `davomat-bot` reponi tanlang (agar ko‘rinmasa, **Configure account** orqali repo qo‘shing).
+1. Render Dashboard da **New +** → **Web Service** tanlang (admin panel ochiq bo‘lishi uchun Web Service; faqat bot kerak bo‘lsa Background Worker).
+2. **Connect a repository** – GitHub dagi `davomat` reponi tanlang.
 3. Sozlamalar:
 
 | Maydon | Qiymat |
 |--------|--------|
 | **Name** | `davomat-bot` (yoki xohlagan nom) |
-| **Region** | Singapore yoki Yevropa (sizga yaqin) |
+| **Region** | Singapore yoki Yevropa |
 | **Branch** | `main` |
 | **Runtime** | `Node` |
 | **Build Command** | `npm install` |
@@ -49,8 +49,10 @@ git push -u origin main
 | `SUPABASE_URL` | Supabase loyiha → Settings → API → Project URL |
 | `SUPABASE_ANON_KEY` | Supabase → Settings → API → anon public key |
 | `ADMIN_USER_IDS` | Sizning Telegram user id (masalan: `7739994444`) |
+| `ADMIN_EMAIL` | Admin panel kirish (sukut: admin@gmail.com) |
+| `ADMIN_PASSWORD` | Admin panel parol (sukut: husanboy2013) |
 
-5. **Create Background Worker** tugmasini bosing.
+5. **Create Web Service** tugmasini bosing. Deploydan keyin berilgan URL da admin panel ochiladi (masalan: `https://davomat-bot.onrender.com`).
 
 ---
 

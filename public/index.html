@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Davomat – Kirish</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { font-family: system-ui, sans-serif; max-width: 520px; margin: 0 auto; padding: 24px; }
+    h1 { margin-top: 0; }
+    form { margin-bottom: 20px; }
+    label { display: block; margin-bottom: 4px; font-weight: 600; }
+    input, textarea { width: 100%; padding: 10px 12px; margin-bottom: 12px; border: 1px solid #ccc; border-radius: 8px; }
+    button { padding: 10px 20px; background: #2563eb; color: #fff; border: none; border-radius: 8px; cursor: pointer; font-size: 1rem; }
+    button:hover { background: #1d4ed8; }
+    button.danger { background: #dc2626; }
+    button.secondary { background: #64748b; }
+    .card { background: #f8fafc; padding: 16px; border-radius: 8px; margin-bottom: 12px; }
+    .card h3 { margin: 0 0 8px 0; }
+    .hidden { display: none; }
+    .btn-row { display: flex; gap: 12px; margin-top: 16px; flex-wrap: wrap; }
+    .btn-row button { flex: 1; min-width: 140px; }
+    .landing-btns { display: flex; gap: 16px; margin-top: 24px; flex-wrap: wrap; }
+    .landing-btns button { flex: 1; min-width: 160px; padding: 16px 24px; font-size: 1.1rem; }
+    .error { color: #dc2626; margin-bottom: 12px; }
+    .small { font-size: 0.9rem; color: #64748b; margin-top: 8px; }
+    #foodList { margin-top: 24px; }
+  </style>
+</head>
+<body>
+  <!-- Landing: Admin | User -->
+  <div id="landingBox">
+    <h1>Kirish</h1>
+    <p>Admin yoki foydalanuvchi sifatida kiring.</p>
+    <div class="landing-btns">
+      <button type="button" id="btnAdmin">Admin</button>
+      <button type="button" id="btnUser">Foydalanuvchi</button>
+    </div>
+  </div>
+
+  <!-- Admin login -->
+  <div id="adminLoginBox" class="hidden">
+    <h1>Admin kirish</h1>
+    <form id="adminLoginForm">
+      <label>Email</label>
+      <input type="email" name="email" required placeholder="admin@gmail.com" value="admin@gmail.com">
+      <label>Parol</label>
+      <input type="password" name="password" required placeholder="••••••••">
+      <button type="submit">Kirish</button>
+    </form>
+    <p id="adminLoginError" class="error hidden"></p>
+    <p><button type="button" class="secondary" id="backFromAdmin">Orqaga</button></p>
+  </div>
+
+  <!-- Admin panel (foods) -->
+  <div id="adminBox" class="hidden">
+    <h1>Taomlar</h1>
+    <form id="foodForm">
+      <label>Nomi *</label>
+      <input type="text" name="name" required placeholder="Taom nomi">
+      <label>Tarif</label>
+      <textarea name="description" rows="2" placeholder="Qisqacha tarif"></textarea>
+      <label>Narx</label>
+      <input type="number" name="price" step="0.01" placeholder="0.00">
+      <label>Rasm URL</label>
+      <input type="url" name="image_url" placeholder="https://...">
+      <button type="submit">Qo'shish</button>
+    </form>
+    <p id="foodError" class="error"></p>
+    <div id="foodList"></div>
+    <p style="margin-top: 24px;"><button type="button" class="danger" id="logoutAdminBtn">Chiqish</button></p>
+  </div>
+
+  <!-- User: Login / Create account -->
+  <div id="userBox" class="hidden">
+    <h1>Foydalanuvchi</h1>
+    <div id="userTabs">
+      <button type="button" id="tabLogin">Kirish</button>
+      <button type="button" id="tabRegister">Ro'yxatdan o'tish</button>
+    </div>
+
+    <div id="userLoginForm" class="hidden">
+      <form id="loginForm">
+        <label>Email</label>
+        <input type="email" name="email" required placeholder="email@example.com">
+        <label>Parol</label>
+        <input type="password" name="password" required placeholder="••••••••">
+        <button type="submit">Kirish</button>
+      </form>
+      <p class="small">Hisobingiz yo'qmi? <a href="#" id="switchToRegister">Ro'yxatdan o'ting</a></p>
+    </div>
+
+    <div id="userRegisterForm" class="hidden">
+      <form id="registerForm">
+        <label>Email</label>
+        <input type="email" name="email" required placeholder="email@example.com">
+        <label>Ism</label>
+        <input type="text" name="name" required placeholder="Ismingiz">
+        <label>Parol</label>
+        <input type="password" name="password" required placeholder="••••••••">
+        <button type="submit">Hisob yaratish</button>
+      </form>
+      <p class="small">Hisobingiz bormi? <a href="#" id="switchToLogin">Kirish</a></p>
+      <p style="margin-top: 16px;"><strong>Yoki</strong></p>
+      <p><button type="button" class="secondary" id="btnGoogle" disabled>Chrome (Google) bilan kirish — tez kunda</button></p>
+    </div>
+
+    <p id="userError" class="error hidden"></p>
+    <p><button type="button" class="secondary" id="backFromUser">Orqaga</button></p>
+  </div>
+
+  <!-- Verify code (after register) -->
+  <div id="verifyBox" class="hidden">
+    <h1>Email tasdiqlash</h1>
+    <p id="verifyHint">Sizning emailingizga 6 xonali kod yuborildi. Uni kiriting.</p>
+    <form id="verifyForm">
+      <input type="hidden" name="email" id="verifyEmail">
+      <label>Kod</label>
+      <input type="text" name="code" required placeholder="123456" maxlength="6" pattern="[0-9]*" inputmode="numeric">
+      <button type="submit">Tasdiqlash</button>
+    </form>
+    <p><button type="button" class="secondary" id="resendCode">Kodni qayta yuborish</button></p>
+    <p id="verifyError" class="error hidden"></p>
+  </div>
+
+  <!-- User dashboard (after login or verify) -->
+  <div id="userDashboard" class="hidden">
+    <h1>Xush kelibsiz, <span id="userName"></span>!</h1>
+    <p>Taomlar ro'yxati:</p>
+    <div id="userFoodList"></div>
+    <p style="margin-top: 24px;"><button type="button" class="danger" id="logoutUserBtn">Chiqish</button></p>
+  </div>
+
+  <script>
+    const landingBox = document.getElementById('landingBox');
+    const adminLoginBox = document.getElementById('adminLoginBox');
+    const adminBox = document.getElementById('adminBox');
+    const userBox = document.getElementById('userBox');
+    const userLoginForm = document.getElementById('userLoginForm');
+    const userRegisterForm = document.getElementById('userRegisterForm');
+    const verifyBox = document.getElementById('verifyBox');
+    const userDashboard = document.getElementById('userDashboard');
+
+    const adminLoginForm = document.getElementById('adminLoginForm');
+    const adminLoginError = document.getElementById('adminLoginError');
+    const loginForm = document.getElementById('loginForm');
+    const registerForm = document.getElementById('registerForm');
+    const verifyForm = document.getElementById('verifyForm');
+    const verifyEmail = document.getElementById('verifyEmail');
+    const verifyHint = document.getElementById('verifyHint');
+    const verifyError = document.getElementById('verifyError');
+    const userError = document.getElementById('userError');
+    const userName = document.getElementById('userName');
+    const userFoodList = document.getElementById('userFoodList');
+    const foodForm = document.getElementById('foodForm');
+    const foodError = document.getElementById('foodError');
+    const foodList = document.getElementById('foodList');
+
+    let pendingVerifyEmail = '';
+
+    function show(...ids) {
+      [landingBox, adminLoginBox, adminBox, userBox, verifyBox, userDashboard].forEach(el => el.classList.add('hidden'));
+      ids.forEach(id => document.getElementById(id).classList.remove('hidden'));
+    }
+
+    function showError(el, msg) {
+      el.textContent = msg || '';
+      el.classList.toggle('hidden', !msg);
+    }
+
+    async function checkAuth() {
+      const r = await fetch('/api/me', { credentials: 'include' });
+      const d = await r.json();
+      if (d.admin) {
+        show('adminBox');
+        loadFoods();
+        return;
+      }
+      if (d.user) {
+        userName.textContent = d.user.name || d.user.email;
+        show('userDashboard');
+        loadUserFoods();
+        return;
+      }
+      show('landingBox');
+    }
+
+    document.getElementById('btnAdmin').addEventListener('click', () => show('adminLoginBox'));
+    document.getElementById('btnUser').addEventListener('click', () => {
+      show('userBox');
+      userLoginForm.classList.remove('hidden');
+      userRegisterForm.classList.add('hidden');
+      showError(userError, '');
+    });
+
+    document.getElementById('backFromAdmin').addEventListener('click', () => show('landingBox'));
+    document.getElementById('backFromUser').addEventListener('click', () => show('landingBox'));
+
+    document.getElementById('tabLogin').addEventListener('click', () => {
+      userLoginForm.classList.remove('hidden');
+      userRegisterForm.classList.add('hidden');
+      showError(userError, '');
+    });
+    document.getElementById('tabRegister').addEventListener('click', () => {
+      userRegisterForm.classList.remove('hidden');
+      userLoginForm.classList.add('hidden');
+      showError(userError, '');
+    });
+    document.getElementById('switchToRegister').addEventListener('click', (e) => { e.preventDefault(); userRegisterForm.classList.remove('hidden'); userLoginForm.classList.add('hidden'); showError(userError, ''); });
+    document.getElementById('switchToLogin').addEventListener('click', (e) => { e.preventDefault(); userLoginForm.classList.remove('hidden'); userRegisterForm.classList.add('hidden'); showError(userError, ''); });
+
+    adminLoginForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      showError(adminLoginError, '');
+      const fd = new FormData(adminLoginForm);
+      const r = await fetch('/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: fd.get('email'), password: fd.get('password') }),
+        credentials: 'include',
+      });
+      const d = await r.json();
+      if (d.ok) {
+        show('adminBox');
+        loadFoods();
+      } else {
+        showError(adminLoginError, d.error || 'Xatolik');
+      }
+    });
+
+    loginForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      showError(userError, '');
+      const fd = new FormData(loginForm);
+      const r = await fetch('/api/user-login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: fd.get('email'), password: fd.get('password') }),
+        credentials: 'include',
+      });
+      const d = await r.json();
+      if (d.ok) {
+        userName.textContent = d.user.name || d.user.email;
+        show('userDashboard');
+        loadUserFoods();
+      } else {
+        showError(userError, d.error || 'Xatolik');
+      }
+    });
+
+    registerForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      showError(userError, '');
+      const fd = new FormData(registerForm);
+      const r = await fetch('/api/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: fd.get('email'),
+          name: fd.get('name'),
+          password: fd.get('password'),
+        }),
+        credentials: 'include',
+      });
+      const d = await r.json();
+      if (d.ok && d.needVerify) {
+        pendingVerifyEmail = (fd.get('email') || '').trim().toLowerCase();
+        verifyEmail.value = pendingVerifyEmail;
+        verifyHint.textContent = 'Sizning emailingizga 6 xonali kod yuborildi. Uni kiriting. (SMTP sozlanmagan bo\'lsa kod konsolda ko\'rinadi.)';
+        showError(verifyError, '');
+        show('verifyBox');
+      } else {
+        showError(userError, d.error || 'Xatolik');
+      }
+    });
+
+    verifyForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      showError(verifyError, '');
+      const fd = new FormData(verifyForm);
+      const r = await fetch('/api/verify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: fd.get('email'), code: fd.get('code') }),
+        credentials: 'include',
+      });
+      const d = await r.json();
+      if (d.ok) {
+        userName.textContent = d.user.name || d.user.email;
+        show('userDashboard');
+        loadUserFoods();
+      } else {
+        showError(verifyError, d.error || 'Xatolik');
+      }
+    });
+
+    document.getElementById('resendCode').addEventListener('click', async () => {
+      showError(verifyError, '');
+      const r = await fetch('/api/resend-code', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: verifyEmail.value }),
+        credentials: 'include',
+      });
+      const d = await r.json();
+      if (d.ok) showError(verifyError, 'Kod qayta yuborildi.');
+      else showError(verifyError, d.error || 'Xatolik');
+    });
+
+    async function loadFoods() {
+      const r = await fetch('/api/foods', { credentials: 'include' });
+      if (r.status === 401) { show('landingBox'); return; }
+      const items = await r.json();
+      foodList.innerHTML = items.length === 0
+        ? '<p>Taomlar yo\'q. Yuqoridan qo\'shing.</p>'
+        : items.map((f) => `
+          <div class="card" data-id="${f.id}">
+            <h3>${escapeHtml(f.name)}</h3>
+            ${f.description ? '<p>' + escapeHtml(f.description) + '</p>' : ''}
+            ${f.price != null ? '<p><strong>Narx:</strong> ' + f.price + '</p>' : ''}
+            <button type="button" class="danger delete-btn">O'chirish</button>
+          </div>
+        `).join('');
+      foodList.querySelectorAll('.delete-btn').forEach((btn) => {
+        btn.addEventListener('click', async () => {
+          const card = btn.closest('.card');
+          if (!confirm('Rostan o\'chirmoqchimisiz?')) return;
+          const rr = await fetch('/api/foods/' + card.dataset.id, { method: 'DELETE', credentials: 'include' });
+          if (rr.ok) card.remove();
+        });
+      });
+    }
+
+    async function loadUserFoods() {
+      const r = await fetch('/api/user/foods', { credentials: 'include' });
+      if (r.status === 401) { show('landingBox'); return; }
+      const items = await r.json();
+      userFoodList.innerHTML = items.length === 0
+        ? '<p>Taomlar yo\'q.</p>'
+        : items.map((f) => `
+          <div class="card">
+            <h3>${escapeHtml(f.name)}</h3>
+            ${f.description ? '<p>' + escapeHtml(f.description) + '</p>' : ''}
+            ${f.price != null ? '<p><strong>Narx:</strong> ' + f.price + '</p>' : ''}
+          </div>
+        `).join('');
+    }
+
+    foodForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      foodError.textContent = '';
+      const fd = new FormData(foodForm);
+      const r = await fetch('/api/foods', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: fd.get('name'),
+          description: fd.get('description'),
+          price: fd.get('price'),
+          image_url: fd.get('image_url'),
+        }),
+        credentials: 'include',
+      });
+      const d = await r.json();
+      if (r.ok) {
+        foodForm.reset();
+        loadFoods();
+      } else {
+        foodError.textContent = d.error || 'Xatolik';
+      }
+    });
+
+    document.getElementById('logoutAdminBtn').addEventListener('click', async () => {
+      await fetch('/api/logout', { method: 'POST', credentials: 'include' });
+      show('landingBox');
+    });
+
+    document.getElementById('logoutUserBtn').addEventListener('click', async () => {
+      await fetch('/api/logout', { method: 'POST', credentials: 'include' });
+      show('landingBox');
+    });
+
+    function escapeHtml(s) {
+      const div = document.createElement('div');
+      div.textContent = s;
+      return div.innerHTML;
+    }
+
+    checkAuth();
+  </script>
+</body>
+</html>

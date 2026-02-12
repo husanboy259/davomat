@@ -97,6 +97,19 @@ CREATE POLICY "Bot allowed_chats" ON allowed_chats FOR ALL USING (true) WITH CHE
 -- ALTER TABLE users ADD COLUMN IF NOT EXISTS is_owner BOOLEAN NOT NULL DEFAULT FALSE;
 -- UPDATE users SET is_owner = true WHERE telegram_user_id = (SELECT telegram_user_id FROM users WHERE is_admin = true LIMIT 1);
 
+-- 8. Taomlar (admin panel orqali qo'shiladi)
+CREATE TABLE IF NOT EXISTS foods (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  name TEXT NOT NULL,
+  description TEXT,
+  price DECIMAL(10,2),
+  image_url TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+ALTER TABLE foods ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Bot foods" ON foods FOR ALL USING (true) WITH CHECK (true);
+
 -- Birinchi egani qo'lda qo'shish (o'zingizning Telegram id ingizni yozing):
 -- INSERT INTO users (telegram_user_id, username, is_allowed, is_owner)
 -- VALUES (123456789, 'your_username', true, true)
