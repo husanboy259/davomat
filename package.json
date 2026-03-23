@@ -1,0 +1,9 @@
+{
+  "name": "attendance-bot",
+  "version": "1.0.0",
+  "description": "Telegram School Attendance Bot",
+  "main": "api/webhook.js",
+  "dependencies": {
+    "@supabase/supabase-js": "^2.39.0"
+  }
+}
